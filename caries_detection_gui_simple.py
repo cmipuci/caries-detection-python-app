@@ -54,14 +54,8 @@ class LabelInput(tk.Frame):
 
 class UserInfo(ttk.LabelFrame):
     """Set up the frame for basic User information"""
-    def __init__(self, *args, **kwargs):
-        super().__init__(text="User Info", *args, **kwargs)
-
-        # create dictionary to hold the UserInfo variables
-        self._vars = {
-          'Name': tk.StringVar(),
-          'Age': tk.IntVar()
-        }
+    def __init__(self, parent, name_var, age_var, *args, **kwargs):
+        super().__init__(parent, text="User Info", **kwargs)
       
         for i in range(2):
           self.columnconfigure(i, weight=1)
@@ -70,12 +64,12 @@ class UserInfo(ttk.LabelFrame):
         LabelInput(
           self, label="Name",
           input_class=ttk.Entry,
-          var=self._vars['Name']
+          var=name_var
         ).grid(row=0, column=0, padx=20, pady=10)
 
         LabelInput(
           self, label='Age',
-          var=self._vars['Age'],
+          var=age_var,
           input_class=ttk.Spinbox,
           input_args={"from_": 6, "to": 150, "increment": 1}
         ).grid(row=0, column=1, padx=20)
@@ -87,8 +81,8 @@ class PicUpload(ttk.LabelFrame):
     # one button to open up filedialog for selecting path
     # tk.StringVar to tie the entry box path with the filedialog path
     # a widget underneath to display the thumnail of the selected jpg
-    def __init__(self, *args, **kwargs):
-        super().__init__(text="Upload pictures", *args, **kwargs)
+    def __init__(self, parent, path_var, **kwargs):
+        super().__init__(parent, text="Upload pictures", **kwargs)
 
         # path entry box will be wider
         # button on the same column as entry box, but takes up less space
@@ -97,7 +91,7 @@ class PicUpload(ttk.LabelFrame):
         self.columnconfigure(1, weight=1)
 
         # configure tkvariable for the file path
-        self.file_path_var = tk.StringVar()
+        self.file_path_var = path_var
 
         # configure entry box
         self.path_entry = ttk.Entry(self, textvariable=self.file_path_var)
@@ -141,8 +135,8 @@ class CRA(ttk.LabelFrame):
     """Set up the frame for Caries Risk Assessment"""
     # The question dictionary will be stored here
     # In the form of {q1:{'low': answer, 'moderate': answer, 'high': answer}, q2:{}.....}
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
         self.columnconfigure(0, weight=1)
 
         question_dict={
@@ -258,7 +252,6 @@ class CRA(ttk.LabelFrame):
            }
         }
         test_dict={
-
            "question 1":
            {
               "low": 'low risk',
@@ -272,13 +265,13 @@ class CRA(ttk.LabelFrame):
               'high': 'high risk'
            },
         }
-        ## change for looop for new dictionary
-        #for question_num, (question, answers) in enumerate(question_dict.items(), start=1):
+
         for question_num, q_dict in question_dict.items():
            question_input = CariesQuestionInput(self, question_num, q_dict,  tk.StringVar())
            question_input.grid(sticky=(tk.W + tk.E))
     
 class CariesQuestionInput(tk.Frame):
+
     """Widgent containing question and radiobutton for the various caries question"""
     def __init__(
         self, parent, question, question_dict_values, risk_status,
@@ -304,7 +297,7 @@ class CariesQuestionInput(tk.Frame):
            anchor='nw',
            wraplength='900'
         )
-        self.question_label.grid(column=0, row=0, rowspan=1, padx=0, pady=10, sticky=(tk.W))
+        self.question_label.grid(column=0, row=0, rowspan=1, padx=0, pady=5, sticky=(tk.W + tk.E))
 
 
         # setting up the answer choices with radiobutton
@@ -318,18 +311,76 @@ class CariesQuestionInput(tk.Frame):
             self.input, value=risk, text=question_dict_values[risk], var=self.risk_status
             )
             if risk == 'Low':
-               #button.grid(column=0, row=1, sticky=(tk.E), padx=10)
-               button.pack(side=tk.LEFT, ipadx=10, ipady=2, fill='x')
+               button.grid(column=0, row=1, sticky=(tk.E), padx=10)
+               #button.pack(side=tk.LEFT, ipadx=10, ipady=2, fill='x')
             if risk == 'Moderate':
-               #button.grid(column=1, row=1, sticky=(tk.E), padx=10)
-               button.pack(side=tk.LEFT, ipadx=10, ipady=2, fill='x')
+               button.grid(column=1, row=1, sticky=(tk.E), padx=10)
+               #button.pack(side=tk.LEFT, ipadx=10, ipady=2, fill='x')
             if risk == 'High':
-               #button.grid(column=2, row=1, sticky=(tk.E), padx=10)
-               button.pack(side=tk.LEFT, ipadx=10, ipady=2, fill='x')
+               button.grid(column=2, row=1, sticky=(tk.E), padx=10)
+               #button.pack(side=tk.LEFT, ipadx=10, ipady=2, fill='x')
         self.input.grid(column=1, row=0, padx=0, pady=10, sticky=(tk.W))
-    
+
+# class PicResult(ttk.LabelFrame):   
+
+class InputForm(ttk.LabelFrame):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # creat dictionary to keep track of all inputs
+        self._vars = {
+            'Name': tk.StringVar(),
+            'Age': tk.IntVar(),
+            'Image Path': tk.StringVar(),
+            'Fluoride Exposure': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Sugary Food and Drinks': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Dental Home': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Special Health Needs': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Chemo or Radiation Therapy': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Eating Disorders': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Medications that reduce salivary flow': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Drug or alcohol Abuse': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Teeth Missing due to Caries': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Dental Appliances': {'risk': tk.StringVar(), 'Patient Education':''},
+        }
+        
+        self.columnconfigure(0, weight=1)
+
+        # setting up frame for userinfo
+        self.userinfo = UserInfo(self, self._vars['Name'], self._vars['Age'])
+        self.userinfo.grid(row=0, padx=10, pady=10, sticky=(tk.W + tk.E))
+
+        # setting up frame for picture upload
+        self.picupload = PicUpload(self, self._vars['Image Path'])
+        self.picupload.grid(row=1, padx=10, pady=10, sticky=(tk.W + tk.E))
+
+        # setting up frame for CRA
+        self.CRA = CRA(self)
+        self.CRA.grid(row=2, padx=10, sticky=(tk.W + tk.E))
+
+        # Submit button
+        buttons = ttk.Frame(self)
+        buttons.grid(sticky=tk.W + tk.E, row=4)
+        self.resetbutton = ttk.Button(
+            buttons, text="Reset", command=self.on_reset
+        )
+
+        self.submitbutton = ttk.Button(
+            buttons, text="Submit", command=self.on_submit
+        )
+        # Reset button
+        self.submitbutton.pack(side=tk.RIGHT, padx=10)
+        self.resetbutton.pack(side=tk.RIGHT, padx=10)
+
+    def on_submit(self):
+        data = dict()
+        pass
+
+    def on_reset(self):
+        pass
 
 class Application(tk.Tk):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
@@ -343,18 +394,9 @@ class Application(tk.Tk):
            font=("TKDefaultFont", 25)   
         ).grid(row=0)
 
-        # setting up frame for userinfo
-        self.userinfo = UserInfo(self)
-        self.userinfo.grid(row=1, padx=10, sticky=(tk.W + tk.E))
-
-        # setting up frame for picture upload
-        self.picupload = PicUpload(self)
-        self.picupload.grid(row=2, padx=10, sticky=(tk.W + tk.E))
-
-        # setting up frame for CRA
-        self.CRA = CRA(self)
-        self.CRA.grid(row=3, padx=10, sticky=(tk.W + tk.E))
-
+        # input form
+        self.inputform = InputForm(self)
+        self.inputform.grid(row=1, padx=10, sticky=(tk.W + tk.E))
 
 if __name__ == "__main__":
     app = Application()
