@@ -153,7 +153,7 @@ Using dental appliances like dentures, bridges, crowns, implants, or braces play
 - Base url = https://www.zocdoc.come/search?
 - zipcode += address={zip_code}
 - after5pm += after_5pm={true or false}
-- before 10 += before_10am{true or false}
+- before 10 += before_10am={true or false}
 - dentist += dr_specialty=98
 - reason for caries visit += reason_visit=3305
 - reason for check visist += reason_visit=6179

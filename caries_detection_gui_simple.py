@@ -146,80 +146,119 @@ class CRA(ttk.LabelFrame):
         self.columnconfigure(0, weight=1)
 
         question_dict={
-           "Do you consume any water, praticularly tap water that contains fluoride?":
+            "q1":
            {
-                'low': 'yes',
-                'moderate': 'no',
-                'high': ''
+                'Question': "Do you consume any water, praticularly tap water that contains fluoride?",
+                'Low': 'yes',
+                'Moderate': 'no',
+                'High': '',
+                'Type': 'Fluoride Exposure',
+                'Patient Education': 'Fluoride, a natural mineral, is essential for strengthening tooth enamel and preventing dental caries (cavities). It helps protect teeth against the acids that cause tooth decay. Regular use of fluoride-containing products like toothpaste and mouthwash, along with fluoride treatments from dental professionals, can significantly lower the risk of cavities. Ensuring adequate fluoride exposure is a key step in maintaining oral health.'
            },
-           """Does the toothpaste you use contain fluoride? Please note that unless otherwise specified as fluoride-free, popular brands such as Colgate or Crest typically contain fluoride.""":
+           "q2":
            {
-                'low': 'yes',
-                'moderate': 'no',
-                'high': ''
+                'Question':'Does the toothpaste you use contain fluoride? Please note that unless otherwise specified as fluoride-free, popular brands such as Colgate or Crest typically contain fluoride.',
+                'Low': 'yes',
+                'Moderate': 'no',
+                'High': '',
+                'Type': 'Fluoride Exposure',
+                'Patient Education': 'Fluoride, a natural mineral, is essential for strengthening tooth enamel and preventing dental caries (cavities). It helps protect teeth against the acids that cause tooth decay. Regular use of fluoride-containing products like toothpaste and mouthwash, along with fluoride treatments from dental professionals, can significantly lower the risk of cavities. Ensuring adequate fluoride exposure is a key step in maintaining oral health.'
            },
-           """Do you consume any fluoride supplements?""":
+           "q3":
            {
-                'low': 'yes',
-                'moderate': 'no',
-                'high': ''  
+                'Question':'Do you consume any fluoride supplements?',
+                'Low': 'yes',
+                'Moderate': 'no',
+                'High': '',
+                'Type': 'Fluoride Exposure',
+                'Patient Education':  'Fluoride, a natural mineral, is essential for strengthening tooth enamel and preventing dental caries (cavities). It helps protect teeth against the acids that cause tooth decay. Regular use of fluoride-containing products like toothpaste and mouthwash, along with fluoride treatments from dental professionals, can significantly lower the risk of cavities. Ensuring adequate fluoride exposure is a key step in maintaining oral health.'
            },
-           """Do you consume sugary foods or beverages, including juices, carbonated or non-carbonated soft drinks, energy drinks, or medicinal syrups? If yes, are these consumed primarily during meal times, or do you have frequent exposure throughout the day?""":
+           "q4":
            {
-                'low':'Primarily during mealtimes',
-                'moderate': '',
-                'high': 'frequent exposures between meal'
+                'Question':'Do you consume sugary foods or beverages, including juices, carbonated or non-carbonated soft drinks, energy drinks, or medicinal syrups? If yes, are these consumed primarily during meal times, or do you have frequent exposure throughout the day?',
+                'Low':'Primarily during mealtimes',
+                'Moderate': '',
+                'High': 'frequent exposures between meal',
+                'Type': 'Sugary Food and Drinks',
+                'Patient Education':'Sugary foods and drinks are a leading contributor to dental caries (cavities), as the bacteria in your mouth thrive on sugar. When these bacteria digest sugar, they produce acids that erode tooth enamel, leading to cavities. Frequent consumption of sugary items throughout the day amplifies this risk because it continuously feeds these bacteria, allowing them more opportunities to produce harmful acids. Limiting sugary foods and beverages, especially between meals, can significantly reduce your risk of developing caries and promote better oral health.'
            },
-           """Do you have a regular dental office that you visit for your ongoing dental care needs??""":
+           "q5":
            {
-                'low':'yes',
-                'moderate': 'no',
-                'high': ''
+                'Question':'Do you have a regular dental office that you visit for your ongoing dental care needs?',
+                'Low':'yes',
+                'Moderate': 'no',
+                'High': '',
+                'Type': 'Dental Home',
+                'Patient Education':'Having a dedicated dental practice, or a "dental home," where you go for regular check-ups and cleanings plays a key role in preventing cavities. These visits allow for the early detection and treatment of dental issues, significantly lowering your risk of caries. Your dentist can also offer tailored advice and preventive care, such as fluoride treatments, to further protect your teeth. Establishing a dental home is a proactive step towards maintaining optimal oral health.'
            },
-           """Do you or your caregivers experience any challenges in performing adequate oral health care due to special healthcare needs, developmental, physical, medical, or mental disabilities?""":
+           "q6":
            {
-                'low':'no',
-                'moderate': 'yes and age>14',
-                'high': 'yes and age 6-14'
+                'Question':'Do you or your caregivers experience any challenges in performing adequate oral health care due to special healthcare needs, developmental, physical, medical, or mental disabilities?',
+                'Low':'no',
+                'Moderate': 'yes and age>14',
+                'High': 'yes and age 6-14',
+                'Type': 'Special Health Needs',
+                'Patient Education': "Special healthcare needs, whether developmental, physical, medical, or mental, can impact one's ability to perform routine oral health care or receive it effectively from caregivers. This situation may increase the risk of dental caries due to difficulties in maintaining consistent and thorough oral hygiene practices, such as brushing and flossing. Moreover, certain conditions may necessitate specialized dental care approaches to prevent caries effectively. Regular dental visits are crucial for individuals with special healthcare needs to receive personalized oral health care strategies, ensuring both prevention and management of dental caries are optimized."
            },
-           """Have you undergone chemothreapy or radiation therapy?""":
+           "q7":
            {
-                'low':'no',
-                'moderate': '',
-                'high': 'yes'
+                'Question': 'Have you undergone chemothreapy or radiation therapy?',
+                'Low':'no',
+                'Moderate': '',
+                'High': 'yes',
+                'Type': 'Chemo or Radiation Therapy',
+                'Patient Education': "Undergoing chemotherapy or radiation therapy can significantly affect your oral health, increasing the risk of dental caries. These treatments can reduce saliva flow, leading to a dry mouth condition (xerostomia), which diminishes the natural cleansing effect of saliva on the teeth. Saliva plays a crucial role in neutralizing acids produced by plaque bacteria and in remineralizing tooth enamel. A reduction in saliva flow can therefore make the teeth more susceptible to decay. It's important for patients who have received these treatments to have a tailored oral care plan, including regular dental check-ups, to manage these risks and maintain oral health."
+
+
            },
-           """Do you have a history of any eating disorders?""":
+           "q8":
            {
-                'low':'no',
-                'moderate': 'yes',
-                'high': ''
+                'Question':'Do you have a history of any eating disorders?',
+                'Low':'no',
+                'Moderate': 'yes',
+                'High': '',
+                'Type': 'Eating Disorders',
+                'Patient Education': "Eating disorders, such as anorexia or bulimia, can have profound effects on oral health and significantly increase the risk of dental caries. These conditions often lead to nutritional deficiencies that weaken tooth enamel, the protective outer layer of the teeth. Moreover, frequent vomiting, associated with some eating disorders, exposes teeth to stomach acids, further eroding enamel and leading to cavities. Regular dental care and addressing the eating disorder with professional help are vital steps in preventing dental caries and maintaining overall oral health."
            },
-           """Are you currently taking any medications that are known to reduce salivary flow, such as antihistamines (e.g., diphenhydramine), antidepressants (e.g., fluoxetine), antihypertensives (e.g., atenolol), or diuretics (e.g., hydrochlorothiazide)?""":
+           "q9":
            {
-                'low':'no',
-                'moderate': 'yes',
-                'high': ''
+                'Question':'Are you currently taking any medications that are known to reduce salivary flow, such as antihistamines (e.g., diphenhydramine), antidepressants (e.g., fluoxetine), antihypertensives (e.g., atenolol), or diuretics (e.g., hydrochlorothiazide)?',
+                'Low':'no',
+                'Moderate': 'yes',
+                'High': '',
+                'Type': "Medications that reduce salivary flow",
+                'Patient Education':"Medications like antihistamines (for example, diphenhydramine), antidepressants (such as fluoxetine), antihypertensives (like atenolol), and diuretics (for instance, hydrochlorothiazide) can lead to decreased saliva production, resulting in dry mouth (xerostomia). Saliva plays a crucial role in oral health by neutralizing harmful acids and washing away food particles, thereby protecting against dental caries. When saliva flow is reduced, the risk of cavities increases due to the lack of this natural defense mechanism. If you're taking any of these medications, it's important to manage dry mouth effectively to prevent dental caries. Strategies may include increasing fluid intake, using saliva substitutes, and practicing good oral hygiene. Your dentist can provide personalized advice and preventive measures to safeguard your oral health."
            },
-           """Have you experienced any issues with drug or alcohol abuse?""":
+           "q10":
            {
-                'low':'no',
-                'moderate': 'yes',
-                'high': ''
+                'Question':'Have you experienced any issues with drug or alcohol abuse?',
+                'Low':'no',
+                'Moderate': 'yes',
+                'High': '',
+                'Type': "Drug or Alcohol Abuse",
+                'Patient Education':"Substance abuse, including drugs and alcohol, can significantly impact your oral health, elevating the risk of dental caries. These substances can lead to neglect in oral hygiene practices, dietary changes, and reduced saliva production, creating an environment conducive to tooth decay. Alcohol, in particular, is acidic and can erode tooth enamel, while some drugs can cause dry mouth, further increasing the risk of cavities. Addressing substance abuse is crucial for overall health and maintaining good oral hygiene. Regular dental check-ups and a comprehensive oral care routine are vital for individuals recovering from substance abuse to mitigate the effects on oral health and reduce the risk of dental caries."
            },
-           """Have you had any teeth extracted due to caries in the past 36 months?""":
+           "q11":
            {
-                'low':'no',
-                'moderate': '',
-                'high': 'yes'
+                'Question': 'Have you had any teeth extracted due to caries in the past 36 months?',
+                'Low':'no',
+                'Moderate': '',
+                'High': 'yes',
+                'Type':'Teeth missing due to caries',
+                'Patient Education':"Having teeth extracted due to caries in the last 36 months highlights a significant risk factor for ongoing dental health issues. Extractions resulting from cavities point to severe decay that could not be remediated by other treatments, underscoring the importance of addressing the root causes of caries, such as dietary habits, oral hygiene practices, and fluoride exposure. Such a history necessitates a proactive approach to oral care, including regular dental check-ups, to prevent new occurrences of caries and to preserve remaining teeth."
            },
-           """Do you currently use any dental appliances, such as complete dentures, partial dentures, bridges, crowns, implants, or braces?""":
+           "q12":
            {
-                'low':'no',
-                'moderate': 'yes',
-                'high': ''
+                'Question': 'Do you currently use any dental appliances, such as complete dentures, partial dentures, bridges, crowns, implants, or braces?',
+                'Low':'no',
+                'Moderate': 'yes',
+                'High': '',
+                'Type': 'Dental Appliances',
+                'Patient Education': "Using dental appliances like dentures, bridges, crowns, implants, or braces plays a crucial role in oral health but also requires specialized care to prevent dental caries. These appliances can create niches for plaque accumulation if not cleaned properly, increasing the risk of decay around the appliance edges or on remaining natural teeth. It's essential to follow tailored cleaning routines for your specific appliance to maintain oral hygiene and prevent caries. Regular dental check-ups are also vital for ensuring the appliances are in good condition and for receiving professional cleaning and guidance on oral care practice."
            }
         }
         test_dict={
+
            "question 1":
            {
               "low": 'low risk',
@@ -233,21 +272,23 @@ class CRA(ttk.LabelFrame):
               'high': 'high risk'
            },
         }
-        for question_num, (question, answers) in enumerate(question_dict.items(), start=1):
-           question_input = CariesQuestionInput(self, question, question_num, answers, tk.StringVar())
+        ## change for looop for new dictionary
+        #for question_num, (question, answers) in enumerate(question_dict.items(), start=1):
+        for question_num, q_dict in question_dict.items():
+           question_input = CariesQuestionInput(self, question_num, q_dict,  tk.StringVar())
            question_input.grid(sticky=(tk.W + tk.E))
     
 class CariesQuestionInput(tk.Frame):
     """Widgent containing question and radiobutton for the various caries question"""
     def __init__(
-        self, parent, question, question_num, answers, risk_status,
+        self, parent, question, question_dict_values, risk_status,
         *args, **kwargs
         ):
-        self.risk = risk_status
+        self.risk_status = risk_status
         super().__init__(parent, **kwargs)
 
         # Set up the column width
-        self.columnconfigure(0, weight=3)
+        self.columnconfigure(0, weight=2)
         self.columnconfigure(1, weight=1)
         
         # setting up a question frame
@@ -258,37 +299,35 @@ class CariesQuestionInput(tk.Frame):
         # Setting up label to display the question
         self.question_label = tk.Label(
            self.question_frame,
-           text= str(question_num) + '. ' + question,
+           text= question + '. ' + question_dict_values['Question'],
            justify="left",
            anchor='nw',
-           wraplength='1000'
+           wraplength='900'
         )
-        self.question_label.grid(column=0, row=0, rowspan=1, padx=0, pady=10, sticky=(tk.W + tk.E))
+        self.question_label.grid(column=0, row=0, rowspan=1, padx=0, pady=10, sticky=(tk.W))
 
-        # self.bind('<Configure>', self.adjust_wraplength(self.question_frame))
 
         # setting up the answer choices with radiobutton
         self.input = tk.Frame(self)
-        for c in range(3):
-            self.input.columnconfigure(c, weight=1)
+        self.input.columnconfigure(0, weight=1)
 
-        for r, a in answers.items():
-            if not a:
+        for risk in ('Low', 'Moderate', 'High'):
+            if not question_dict_values[risk]:
                 continue
             button = ttk.Radiobutton(
-            self.input, value=r, text=a, var=self.risk
+            self.input, value=risk, text=question_dict_values[risk], var=self.risk_status
             )
-            if r == 'low':
-               button.grid(column=0, row=1, sticky=(tk.E), padx=10)
-            if r == 'moderate':
-               button.grid(column=1, row=1, sticky=(tk.E), padx=10)
-            if r == 'high':
-               button.grid(column=2, row=1, sticky=(tk.E), padx=10)
-        self.input.grid(column=1, row=0, padx=0, pady=10, sticky=(tk.W + tk.E))
+            if risk == 'Low':
+               #button.grid(column=0, row=1, sticky=(tk.E), padx=10)
+               button.pack(side=tk.LEFT, ipadx=10, ipady=2, fill='x')
+            if risk == 'Moderate':
+               #button.grid(column=1, row=1, sticky=(tk.E), padx=10)
+               button.pack(side=tk.LEFT, ipadx=10, ipady=2, fill='x')
+            if risk == 'High':
+               #button.grid(column=2, row=1, sticky=(tk.E), padx=10)
+               button.pack(side=tk.LEFT, ipadx=10, ipady=2, fill='x')
+        self.input.grid(column=1, row=0, padx=0, pady=10, sticky=(tk.W))
     
-    def adjust_wraplength(self, parent, event=None, initial_width=None):
-        """Dynamically adjust the wraplength of the label."""
-        self.question_label.config(wraplength=parent.winfo_width())
 
 class Application(tk.Tk):
     def __init__(self, *args, **kwargs):
