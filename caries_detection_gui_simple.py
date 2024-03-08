@@ -327,10 +327,11 @@ class CariesQuestionInput(tk.Frame):
 # class PicResult(ttk.LabelFrame):   
 
 class InputForm(ttk.LabelFrame):
-    def __init__(self, master, var_dict, *args, **kwargs):
+    def __init__(self, master, var_dict, submit_callback, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         self._vars = var_dict
+        self.submit_callback = submit_callback
         
         self.columnconfigure(0, weight=1)
 
@@ -363,7 +364,10 @@ class InputForm(ttk.LabelFrame):
     def on_submit(self):
         data = dict()
         for key, variable in self._vars.items():
-            if isinstance(variable, dict):
+            if key == "Output Image Path" or key =="Number of Caries":
+                print("enter if")
+                data[key] = variable
+            elif isinstance(variable, dict):
                 # construct the dictionary again
                 data[key] = dict()
                 for sub_key, sub_variable in variable.items():
@@ -372,7 +376,9 @@ class InputForm(ttk.LabelFrame):
                     else:
                         data[key][sub_key] = sub_variable
             else:
+                print(key)
                 data[key] = variable.get()
+        self.submit_callback(data)
         
         # internal test
         for variable, data in data.items():
@@ -389,6 +395,22 @@ class InputForm(ttk.LabelFrame):
     # will be writen later
     def on_reset(self):
         pass
+
+class ResultsWindow(tk.Toplevel):
+    def __init__(self, parent, data_dict, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("Results")
+
+        # Example of using the data
+        for key, value in data_dict.items():
+            if isinstance(value, dict):
+                ttk.Label(self, text=f"{key} risk is {value['risk'] or 'unanswered'}").pack()
+                
+            else:
+                ttk.Label(self, text=f"{key} is {value or 'unanswered'}").pack()
+
+
+        # You can add more widgets here based on the results you need to display
 
 class Application(tk.Tk):
 
@@ -412,6 +434,8 @@ class Application(tk.Tk):
             'Drug or Alcohol Abuse': {'risk': tk.StringVar(), 'Patient Education':''},
             'Teeth Missing due to Caries': {'risk': tk.StringVar(), 'Patient Education':''},
             'Dental Appliances': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Output Image Path': '',
+            'Number of Caries': '',
         }
 
         #title shown on window
@@ -425,11 +449,27 @@ class Application(tk.Tk):
         ).grid(row=0)
 
         # input form
-        self.inputform = InputForm(self, var_dict=self._vars)
+        self.inputform = InputForm(self, var_dict=self._vars, submit_callback=self.open_results_window)
         self.inputform.grid(row=1, padx=10, sticky=(tk.W + tk.E))
 
+    def open_results_window(self, data):
 
-    def dummmy_ai(img_path):
+        # get the image to be processed
+        image_path = data.get('Image Path', '')
+
+        # assigned variables 
+        processed_image, caries_count = self.dummy_ai(image_path)
+        
+        # Update 'form_data' with AI processing results
+        data.update({
+            'Output Image Path': processed_image,
+            'Number of Caries': caries_count
+        })
+
+        ResultsWindow(self, data)
+
+
+    def dummy_ai(self, img_path):
         # substitution for ai algorithum
         # assume input as picture and output picture and number of caries = 3
         num_caries = 3
