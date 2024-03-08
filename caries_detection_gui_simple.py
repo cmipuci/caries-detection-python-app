@@ -327,27 +327,10 @@ class CariesQuestionInput(tk.Frame):
 # class PicResult(ttk.LabelFrame):   
 
 class InputForm(ttk.LabelFrame):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, master, var_dict, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
 
-        # creat dictionary to keep track of all inputs
-        self._vars = {
-            'Name': tk.StringVar(),
-            'Age': tk.IntVar(),
-            'Image Path': tk.StringVar(),
-            'Fluoride Exposure 1': {'risk': tk.StringVar(), 'Patient Education':''},
-            'Fluoride Exposure 2': {'risk': tk.StringVar(), 'Patient Education':''},
-            'Fluoride Exposure 3': {'risk': tk.StringVar(), 'Patient Education':''},
-            'Sugary Food and Drinks': {'risk': tk.StringVar(), 'Patient Education':''},
-            'Dental Home': {'risk': tk.StringVar(), 'Patient Education':''},
-            'Special Health Needs': {'risk': tk.StringVar(), 'Patient Education':''},
-            'Chemo or Radiation Therapy': {'risk': tk.StringVar(), 'Patient Education':''},
-            'Eating Disorders': {'risk': tk.StringVar(), 'Patient Education':''},
-            'Medications that reduce salivary flow': {'risk': tk.StringVar(), 'Patient Education':''},
-            'Drug or Alcohol Abuse': {'risk': tk.StringVar(), 'Patient Education':''},
-            'Teeth Missing due to Caries': {'risk': tk.StringVar(), 'Patient Education':''},
-            'Dental Appliances': {'risk': tk.StringVar(), 'Patient Education':''},
-        }
+        self._vars = var_dict
         
         self.columnconfigure(0, weight=1)
 
@@ -399,9 +382,11 @@ class InputForm(ttk.LabelFrame):
             else:
                 print(f"{variable} is {data or 'unanswered'}")
         print('\n')
+        return data
         
         pass
 
+    # will be writen later
     def on_reset(self):
         pass
 
@@ -410,6 +395,25 @@ class Application(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
+        # creat dictionary to keep track of all inputs
+        self._vars = {
+            'Name': tk.StringVar(),
+            'Age': tk.IntVar(),
+            'Image Path': tk.StringVar(),
+            'Fluoride Exposure 1': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Fluoride Exposure 2': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Fluoride Exposure 3': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Sugary Food and Drinks': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Dental Home': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Special Health Needs': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Chemo or Radiation Therapy': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Eating Disorders': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Medications that reduce salivary flow': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Drug or Alcohol Abuse': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Teeth Missing due to Caries': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Dental Appliances': {'risk': tk.StringVar(), 'Patient Education':''},
+        }
+
         #title shown on window
         self.title("Caries Detection Application")
         self.columnconfigure(0, weight=1)
@@ -421,8 +425,16 @@ class Application(tk.Tk):
         ).grid(row=0)
 
         # input form
-        self.inputform = InputForm(self)
+        self.inputform = InputForm(self, var_dict=self._vars)
         self.inputform.grid(row=1, padx=10, sticky=(tk.W + tk.E))
+
+
+    def dummmy_ai(img_path):
+        # substitution for ai algorithum
+        # assume input as picture and output picture and number of caries = 3
+        num_caries = 3
+        return img_path, num_caries
+
 
 if __name__ == "__main__":
     app = Application()
