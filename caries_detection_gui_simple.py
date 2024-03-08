@@ -135,9 +135,11 @@ class CRA(ttk.LabelFrame):
     """Set up the frame for Caries Risk Assessment"""
     # The question dictionary will be stored here
     # In the form of {q1:{'low': answer, 'moderate': answer, 'high': answer}, q2:{}.....}
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, var_dict, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.columnconfigure(0, weight=1)
+
+        self._var_dict = var_dict
 
         question_dict={
             "q1":
@@ -146,7 +148,7 @@ class CRA(ttk.LabelFrame):
                 'Low': 'yes',
                 'Moderate': 'no',
                 'High': '',
-                'Type': 'Fluoride Exposure',
+                'Type': 'Fluoride Exposure 1',
                 'Patient Education': 'Fluoride, a natural mineral, is essential for strengthening tooth enamel and preventing dental caries (cavities). It helps protect teeth against the acids that cause tooth decay. Regular use of fluoride-containing products like toothpaste and mouthwash, along with fluoride treatments from dental professionals, can significantly lower the risk of cavities. Ensuring adequate fluoride exposure is a key step in maintaining oral health.'
            },
            "q2":
@@ -155,7 +157,7 @@ class CRA(ttk.LabelFrame):
                 'Low': 'yes',
                 'Moderate': 'no',
                 'High': '',
-                'Type': 'Fluoride Exposure',
+                'Type': 'Fluoride Exposure 2',
                 'Patient Education': 'Fluoride, a natural mineral, is essential for strengthening tooth enamel and preventing dental caries (cavities). It helps protect teeth against the acids that cause tooth decay. Regular use of fluoride-containing products like toothpaste and mouthwash, along with fluoride treatments from dental professionals, can significantly lower the risk of cavities. Ensuring adequate fluoride exposure is a key step in maintaining oral health.'
            },
            "q3":
@@ -164,7 +166,7 @@ class CRA(ttk.LabelFrame):
                 'Low': 'yes',
                 'Moderate': 'no',
                 'High': '',
-                'Type': 'Fluoride Exposure',
+                'Type': 'Fluoride Exposure 3',
                 'Patient Education':  'Fluoride, a natural mineral, is essential for strengthening tooth enamel and preventing dental caries (cavities). It helps protect teeth against the acids that cause tooth decay. Regular use of fluoride-containing products like toothpaste and mouthwash, along with fluoride treatments from dental professionals, can significantly lower the risk of cavities. Ensuring adequate fluoride exposure is a key step in maintaining oral health.'
            },
            "q4":
@@ -238,7 +240,7 @@ class CRA(ttk.LabelFrame):
                 'Low':'no',
                 'Moderate': '',
                 'High': 'yes',
-                'Type':'Teeth missing due to caries',
+                'Type':'Teeth Missing due to Caries',
                 'Patient Education':"Having teeth extracted due to caries in the last 36 months highlights a significant risk factor for ongoing dental health issues. Extractions resulting from cavities point to severe decay that could not be remediated by other treatments, underscoring the importance of addressing the root causes of caries, such as dietary habits, oral hygiene practices, and fluoride exposure. Such a history necessitates a proactive approach to oral care, including regular dental check-ups, to prevent new occurrences of caries and to preserve remaining teeth."
            },
            "q12":
@@ -267,14 +269,15 @@ class CRA(ttk.LabelFrame):
         }
 
         for question_num, q_dict in question_dict.items():
-           question_input = CariesQuestionInput(self, question_num, q_dict,  tk.StringVar())
-           question_input.grid(sticky=(tk.W + tk.E))
+            question_input = CariesQuestionInput(self, question_num, q_dict,  self._var_dict[q_dict['Type']]['risk'])
+            self._var_dict[q_dict['Type']]['Patient Education'] = q_dict['Patient Education']
+            question_input.grid(sticky=(tk.W + tk.E))
     
 class CariesQuestionInput(tk.Frame):
 
     """Widgent containing question and radiobutton for the various caries question"""
     def __init__(
-        self, parent, question, question_dict_values, risk_status,
+        self, parent, question, question_dict_values, risk_status, 
         *args, **kwargs
         ):
         self.risk_status = risk_status
@@ -332,14 +335,16 @@ class InputForm(ttk.LabelFrame):
             'Name': tk.StringVar(),
             'Age': tk.IntVar(),
             'Image Path': tk.StringVar(),
-            'Fluoride Exposure': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Fluoride Exposure 1': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Fluoride Exposure 2': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Fluoride Exposure 3': {'risk': tk.StringVar(), 'Patient Education':''},
             'Sugary Food and Drinks': {'risk': tk.StringVar(), 'Patient Education':''},
             'Dental Home': {'risk': tk.StringVar(), 'Patient Education':''},
             'Special Health Needs': {'risk': tk.StringVar(), 'Patient Education':''},
             'Chemo or Radiation Therapy': {'risk': tk.StringVar(), 'Patient Education':''},
             'Eating Disorders': {'risk': tk.StringVar(), 'Patient Education':''},
             'Medications that reduce salivary flow': {'risk': tk.StringVar(), 'Patient Education':''},
-            'Drug or alcohol Abuse': {'risk': tk.StringVar(), 'Patient Education':''},
+            'Drug or Alcohol Abuse': {'risk': tk.StringVar(), 'Patient Education':''},
             'Teeth Missing due to Caries': {'risk': tk.StringVar(), 'Patient Education':''},
             'Dental Appliances': {'risk': tk.StringVar(), 'Patient Education':''},
         }
@@ -355,7 +360,7 @@ class InputForm(ttk.LabelFrame):
         self.picupload.grid(row=1, padx=10, pady=10, sticky=(tk.W + tk.E))
 
         # setting up frame for CRA
-        self.CRA = CRA(self)
+        self.CRA = CRA(self, self._vars)
         self.CRA.grid(row=2, padx=10, sticky=(tk.W + tk.E))
 
         # Submit button
@@ -374,6 +379,27 @@ class InputForm(ttk.LabelFrame):
 
     def on_submit(self):
         data = dict()
+        for key, variable in self._vars.items():
+            if isinstance(variable, dict):
+                # construct the dictionary again
+                data[key] = dict()
+                for sub_key, sub_variable in variable.items():
+                    if sub_key == 'risk':
+                        data[key][sub_key] = sub_variable.get()
+                    else:
+                        data[key][sub_key] = sub_variable
+            else:
+                data[key] = variable.get()
+        
+        # internal test
+        for variable, data in data.items():
+            if isinstance(data, dict):
+                print(f"{variable} risk is {data['risk'] or 'unanswered'}")
+                
+            else:
+                print(f"{variable} is {data or 'unanswered'}")
+        print('\n')
+        
         pass
 
     def on_reset(self):
