@@ -115,7 +115,7 @@ class PicUpload(ttk.LabelFrame):
        file_path = filedialog.askopenfilename(
           title="Select an image",
           initialdir=initial_dir,
-          filetypes=[('PNG files', '*.png')]
+          filetypes=[('JPEG files', '*.jpeg')]
        )
        if file_path:
           self.file_path_var.set(file_path)
@@ -396,12 +396,63 @@ class InputForm(ttk.LabelFrame):
     def on_reset(self):
         pass
 
+class ImageOutput(ttk.LabelFrame):
+    def __init__(self, parent, path, **kwargs):
+        super().__init__(parent, text="AI Result", **kwargs)
+        self.columnconfigure(0, weight=1)
+
+        # path for the output image
+        self.image_path = path
+
+        # image label
+        self.image_label = tk.Label(self)
+        self.image_label.grid(row=0, column=0, sticky=(tk.W + tk.E), padx=20, pady=10)
+        
+        self.display_image(self.image_path)
+
+
+    def display_image(self, path):
+        """load and display the image in the label"""
+        with Image.open(path) as img:
+            img.thumbnail ((200,200))
+            photo = ImageTk.PhotoImage(img)
+
+            self.image_label.config(image=photo)
+            self.image_label.image=photo
+
+
 class ResultsWindow(tk.Toplevel):
     def __init__(self, parent, data_dict, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.title("Results")
 
+        self.canvas = tk.Canvas(self)
+        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.scrollable_frame = tk.Frame(self.canvas)
+
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        self.populate_results(data_dict)
+
+    def populate_results(self, data_dict):
         # Example of using the data
+
+        self.output_img = ImageOutput(self, data_dict['Image Path'])
+        # self.output_img.grid(row=0, padx=10, pady=10, sticky=(tk.W + tk.E))
+        self.output_img.pack(padx=10, pady=10, fill=tk.BOTH)
+
+        # Displaying message for amount of caries
+        self.caries_message = ttk.Label(self, text=f"{data_dict['Number of Caries']} caries detected!")
+        # self.caries_message.grid(row=1, padx=10, pady=10, sticky=(tk.W))
+        self.output_img.pack(padx=10, pady=10, fill=tk.BOTH)
+
         for key, value in data_dict.items():
             if isinstance(value, dict):
                 ttk.Label(self, text=f"{key} risk is {value['risk'] or 'unanswered'}").pack()
@@ -409,8 +460,66 @@ class ResultsWindow(tk.Toplevel):
             else:
                 ttk.Label(self, text=f"{key} is {value or 'unanswered'}").pack()
 
+    def onFrameConfigure(self, event):
+        '''Reset the scroll region to encompass the inner frame'''
 
-        # You can add more widgets here based on the results you need to display
+class ResultsWindow(tk.Toplevel):
+    def __init__(self, parent, data_dict, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("Results")
+
+        self.populate_results(data_dict)
+
+    def populate_results(self, data_dict):
+        # Populate results using grid
+        ImageOutput(self, data_dict['Image Path']).grid(row=0, column=0, sticky="ew", padx=10, pady=10)
+        
+        ttk.Label(self, text=f"{data_dict['Number of Caries']} caries detected!").grid(row=1, column=0, sticky="ew", padx=10, pady=10)
+
+        row = 2  # Starting row for the dynamic content
+        for key, value in data_dict.items():
+            if isinstance(value, dict):
+                ttk.Label(self, text=f"{key} risk is {value['risk'] or 'unanswered'}").grid(row=row, column=0, sticky="ew", padx=10, pady=2)
+            else:
+                ttk.Label(self, text=f"{key} is {value or 'unanswered'}").grid(row=row, column=0, sticky="ew", padx=10, pady=2)
+            row += 1
+
+        self.columnconfigure(0, weight=1)  # Make the column expandable
+
+class ScrollResultsWindow(tk.Toplevel):
+    def __init__(self, parent, data_dict, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("Results")
+        self.geometry("600x400")  # Set initial size of the window
+
+        self.canvas = tk.Canvas(self)
+        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scroll_frame = tk.Frame(self.canvas)  # Frame that will contain widgets
+
+        self.scroll_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            )
+        )
+
+        self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        self.populate_results(data_dict)
+
+    def populate_results(self, data_dict):
+        # Add your content to self.scroll_frame instead of self
+        ImageOutput(self.scroll_frame, data_dict['Image Path']).pack(padx=10, pady=10, fill=tk.X)
+        ttk.Label(self.scroll_frame, text=f"{data_dict['Number of Caries']} caries detected!").pack(padx=10, pady=10, fill=tk.X)
+        for key, value in data_dict.items():
+            if isinstance(value, dict):
+                ttk.Label(self.scroll_frame, text=f"{key} risk is {value['risk'] or 'unanswered'}").pack(fill=tk.X)
+            else:
+                ttk.Label(self.scroll_frame, text=f"{key} is {value or 'unanswered'}").pack(fill=tk.X)
 
 class Application(tk.Tk):
 
