@@ -6,6 +6,7 @@ from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
+import webbrowser
 
 
 class LabelInput(tk.Frame):
@@ -125,7 +126,7 @@ class PicUpload(ttk.LabelFrame):
        """Load and display the image in the label"""
        # Open the image file
        with Image.open(file_path) as img:
-          img.thumbnail((200,200))
+          img.thumbnail((300,300))
           photo = ImageTk.PhotoImage(img)
 
           self.image_label.config(image=photo)
@@ -337,7 +338,7 @@ class InputForm(ttk.LabelFrame):
 
         # setting up frame for userinfo
         self.userinfo = UserInfo(self, self._vars['Name'], self._vars['Age'])
-        self.userinfo.grid(row=0, padx=10, pady=10, sticky=(tk.W + tk.E))
+        # self.userinfo.grid(row=0, padx=10, pady=10, sticky=(tk.W + tk.E))
 
         # setting up frame for picture upload
         self.picupload = PicUpload(self, self._vars['Image Path'])
@@ -345,11 +346,11 @@ class InputForm(ttk.LabelFrame):
 
         # setting up frame for CRA
         self.CRA = CRA(self, self._vars)
-        self.CRA.grid(row=2, padx=10, sticky=(tk.W + tk.E))
+        self.CRA.grid(row=3, padx=10, sticky=(tk.W + tk.E))
 
         # Submit button
         buttons = ttk.Frame(self)
-        buttons.grid(sticky=tk.W + tk.E, row=4)
+        buttons.grid(sticky=tk.W + tk.E, row=2)
         self.resetbutton = ttk.Button(
             buttons, text="Reset", command=self.on_reset
         )
@@ -359,7 +360,6 @@ class InputForm(ttk.LabelFrame):
         )
         # Reset button
         self.submitbutton.pack(side=tk.RIGHT, padx=10)
-        self.resetbutton.pack(side=tk.RIGHT, padx=10)
 
     def on_submit(self):
         data = dict()
@@ -389,8 +389,6 @@ class InputForm(ttk.LabelFrame):
                 print(f"{variable} is {data or 'unanswered'}")
         print('\n')
         return data
-        
-        pass
 
     # will be writen later
     def on_reset(self):
@@ -414,54 +412,118 @@ class ImageOutput(ttk.LabelFrame):
     def display_image(self, path):
         """load and display the image in the label"""
         with Image.open(path) as img:
-            img.thumbnail ((200,200))
+            img.thumbnail ((300,300))
             photo = ImageTk.PhotoImage(img)
 
             self.image_label.config(image=photo)
             self.image_label.image=photo
 
+class CRAresults(ttk.LabelFrame):
+    def __init__(self, parent, data_dict, **kwargs):
+        super().__init__(parent, text="Caries risk results based on your answers to previous questions", **kwargs)
+        self.columnconfigure(0, weight=2)
+        self.columnconfigure(1, weight=20)
 
-class ResultsWindow(tk.Toplevel):
-    def __init__(self, parent, data_dict, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-        self.title("Results")
+        high_risk = ('Moderate', 'High')
 
-        self.canvas = tk.Canvas(self)
-        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        if (data_dict['Fluoride Exposure 1']['risk'] in high_risk or 
+            data_dict['Fluoride Exposure 2']['risk'] in high_risk or
+            data_dict['Fluoride Exposure 3']['risk'] in high_risk):
+            ttk.Label(
+                self,
+                text=f"High risk in fluoride exposure",
+            ).grid(row=1, column=0, sticky="ew", padx=10, pady=2, rowspan=5)
+            ttk.Label(
+                self, 
+                text=f"{data_dict['Fluoride Exposure 1']['Patient Education']}",
+                justify="left",
+                anchor='nw',
+                wraplength='1200'
+                ).grid(row=1, column=1, sticky="ew", padx=10, pady=2, rowspan=5)
 
-        self.scrollable_frame = tk.Frame(self.canvas)
+        matched_key = (
+            'Sugary Food and Drinks',
+            'Dental Home',
+            'Special Health Needs',
+            'Chemo or Radiation Threapy',
+            'Eating Disorders',
+            'Medications that reduce salivary flow',
+            'Drug or Alcohol Abuse',
+            'Teeth Missing due to Caries',
+            'Dental Appliances',
+            )
 
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-
-        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-
-        self.canvas.pack(side="left", fill="both", expand=True)
-        self.scrollbar.pack(side="right", fill="y")
-
-        self.populate_results(data_dict)
-
-    def populate_results(self, data_dict):
-        # Example of using the data
-
-        self.output_img = ImageOutput(self, data_dict['Image Path'])
-        # self.output_img.grid(row=0, padx=10, pady=10, sticky=(tk.W + tk.E))
-        self.output_img.pack(padx=10, pady=10, fill=tk.BOTH)
-
-        # Displaying message for amount of caries
-        self.caries_message = ttk.Label(self, text=f"{data_dict['Number of Caries']} caries detected!")
-        # self.caries_message.grid(row=1, padx=10, pady=10, sticky=(tk.W))
-        self.output_img.pack(padx=10, pady=10, fill=tk.BOTH)
-
+        i = 2
         for key, value in data_dict.items():
-            if isinstance(value, dict):
-                ttk.Label(self, text=f"{key} risk is {value['risk'] or 'unanswered'}").pack()
-                
-            else:
-                ttk.Label(self, text=f"{key} is {value or 'unanswered'}").pack()
+            if key in matched_key and value['risk'] in high_risk:
+                print(key)
+                ttk.Label(
+                    self,
+                    text=f"{key}",
+                ).grid(row=i, column=0, sticky="ew", padx=10, pady=2, rowspan=5)
+                ttk.Label(
+                    self, 
+                    text=f"{value['Patient Education']}",
+                    justify="left",
+                    anchor='nw',
+                    wraplength='1200'
+                    ).grid(row=i, column=1, sticky="ew", padx=10, pady=2, rowspan=5)
+                i = i + 5
 
-    def onFrameConfigure(self, event):
-        '''Reset the scroll region to encompass the inner frame'''
+class zocdoc(ttk.LabelFrame):
+    def __init__(self, parent, data_dict, **kwargs):
+        super().__init__(parent, text='Fill out the following and find a dentist near you using ZocDoc:', **kwargs)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self._vars = {
+            'Zip Code': tk.IntVar(),
+            'After 5pm': tk.BooleanVar(), 
+            'Before 10am': tk.BooleanVar(),
+            'Checkup Only': tk.BooleanVar()
+        }
+
+        LabelInput(
+            self, "Zip Code", input_class=ttk.Entry, var=self._vars['Zip Code']
+        ).grid(row=0, column=0)
+        LabelInput(
+            self, "After 5pm", input_class=ttk.Checkbutton, var=self._vars['After 5pm']
+        ).grid(row=1, column=0)
+        LabelInput(
+            self, "Before 10am", input_class=ttk.Checkbutton, var=self._vars['Before 10am']
+        ).grid(row=2, column=0)
+        LabelInput(
+            self, "Checkup Only", input_class=ttk.Checkbutton, var=self._vars['Checkup Only']
+        ).grid(row=3, column=0)
+        buttons = ttk.Frame(self)
+        buttons.grid(sticky=tk.W + tk.E, row=4)
+        self.websitebutton = ttk.Button(
+            buttons, text="Go to ZocDoc", command=lambda: self._go_to_zocdoc(self._vars))
+        self.websitebutton.pack(side=tk.RIGHT)
+
+
+    def _go_to_zocdoc(self, var_list):
+        baseurl = "https://www.zocdoc.com/search?"
+        zip_code = var_list['Zip Code'].get()
+        after_5pm = var_list['After 5pm'].get()
+        before_10am = var_list['Before 10am'].get()
+        checkup_only = var_list['Checkup Only'].get()
+
+        if zip_code:
+            baseurl += f"address={zip_code}&"
+        if after_5pm:
+            baseurl += "after_5pm=true&"
+        if before_10am:
+            baseurl += "before_10am=true&"
+        if checkup_only:
+            baseurl += "reason_visit=6179&"
+        else:
+            baseurl += "reason_visit=3305&"
+        
+        
+        print(baseurl)  # You might want to actually open this URL in a web browser
+        # For example, using webbrowser module
+        # import webbrowser
+        webbrowser.open(baseurl)
 
 class ResultsWindow(tk.Toplevel):
     def __init__(self, parent, data_dict, *args, **kwargs):
@@ -472,19 +534,22 @@ class ResultsWindow(tk.Toplevel):
 
     def populate_results(self, data_dict):
         # Populate results using grid
+        self.columnconfigure(0, weight=1)  # Make the column expandable
         ImageOutput(self, data_dict['Image Path']).grid(row=0, column=0, sticky="ew", padx=10, pady=10)
         
         ttk.Label(self, text=f"{data_dict['Number of Caries']} caries detected!").grid(row=1, column=0, sticky="ew", padx=10, pady=10)
 
-        row = 2  # Starting row for the dynamic content
-        for key, value in data_dict.items():
-            if isinstance(value, dict):
-                ttk.Label(self, text=f"{key} risk is {value['risk'] or 'unanswered'}").grid(row=row, column=0, sticky="ew", padx=10, pady=2)
-            else:
-                ttk.Label(self, text=f"{key} is {value or 'unanswered'}").grid(row=row, column=0, sticky="ew", padx=10, pady=2)
-            row += 1
+        zocdoc(self, data_dict).grid(row=2, column=0, sticky="ew", padx=10, pady=10)
+        CRAresults(self, data_dict).grid(row=3, column=0, sticky="ew", padx=10, pady=10)
 
-        self.columnconfigure(0, weight=1)  # Make the column expandable
+        row = 3  # Starting row for the dynamic content
+
+        # for key, value in data_dict.items():
+        #     if isinstance(value, dict):
+        #         ttk.Label(self, text=f"{key} risk is {value['risk'] or 'unanswered'}").grid(row=row, column=0, sticky="ew", padx=10, pady=2)
+        #     else:
+        #         ttk.Label(self, text=f"{key} is {value or 'unanswered'}").grid(row=row, column=0, sticky="ew", padx=10, pady=2)
+        #     row += 1
 
 class ScrollResultsWindow(tk.Toplevel):
     def __init__(self, parent, data_dict, *args, **kwargs):
