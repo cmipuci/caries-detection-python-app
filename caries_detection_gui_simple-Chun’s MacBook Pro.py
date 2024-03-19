@@ -645,11 +645,11 @@ class Application(tk.Tk):
 
     def dummy_ai(self, img_path):
         from roboflow import Roboflow
-        rf = Roboflow(api_key="gW6C0GVmr7frqlRayVwV")
-        project = rf.workspace().project("sidp")
-        model = project.version(1).model
+        rf = Roboflow(api_key="API_KEY")
+        project = rf.workspace().project("MODEL_ENDPOINT")
+        model = project.version(VERSION).model
         # infer on a local image
-        print(model.predict(img_path, confidence=40).json())
+        print(model.predict(img_path, confidence=40, overlap=30).json())
         num_caries = 3
         return img_path, num_caries
 
