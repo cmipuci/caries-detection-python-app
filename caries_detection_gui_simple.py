@@ -658,13 +658,14 @@ class Application(tk.Tk):
         model = project.version(1).model
         # infer on a local image
         prediction_json = model.predict(img_path, confidence=40).json()
-        print(prediction_json)
+        # print(prediction_json)
         model.predict(img_path, confidence=40).save(output_path)
 
         num_caries, num_amalgam, num_composite = self.image_predictions(prediction_json)
         print(f"number of caries = {num_caries}")
         print(f"number of amalgam = {num_amalgam}")
         print(f"number of composite = {num_composite}")
+        self.draw_bounding_boxes(output_path, prediction_json)
         return output_path, num_caries
 
     def image_predictions(self, prediction_json):
@@ -688,6 +689,25 @@ class Application(tk.Tk):
 
     def draw_bounding_boxes(self, output_path, prediction_json):
         """Using the output image and json from Roboflow, draw bounding boxes and labeled the """
+        bounding_boxes = []
+        i = 1
+        for predictions_dict in prediction_json['predictions']:
+            if isinstance(predictions_dict, dict):
+                box_parameter = {}
+                box_parameter['x'] = predictions_dict['x']
+                box_parameter['y'] = predictions_dict['y']
+                box_parameter['width'] = predictions_dict['width']
+                box_parameter['height'] = predictions_dict['height']
+                box_parameter['class'] = predictions_dict['class']
+                if predictions_dict['class'] == 'Caries':
+                    box_parameter['color'] = 'white'
+                elif predictions_dict['class'] == 'A-Filling':
+                    box_parameter['color'] = 'blue'
+                elif predictions_dict['class'] == 'C-Filling':
+                    box_parameter['color'] = 'green'
+                bounding_boxes.append(box_parameter)
+        for box in bounding_boxes:
+            print(box)
         pass
 
 if __name__ == "__main__":
