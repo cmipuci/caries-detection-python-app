@@ -699,6 +699,7 @@ class Application(tk.Tk):
                 box_parameter['width'] = predictions_dict['width']
                 box_parameter['height'] = predictions_dict['height']
                 box_parameter['class'] = predictions_dict['class']
+                box_parameter['confidence'] = round(predictions_dict['confidence'] * 100 , 2)
                 if predictions_dict['class'] == 'Caries':
                     box_parameter['color'] = 'white'
                 elif predictions_dict['class'] == 'A-Filling':
@@ -706,8 +707,43 @@ class Application(tk.Tk):
                 elif predictions_dict['class'] == 'C-Filling':
                     box_parameter['color'] = 'green'
                 bounding_boxes.append(box_parameter)
+
+        # Load the image
+        image = Image.open(output_path)
+
         for box in bounding_boxes:
             print(box)
+            """
+            Draws a bounding box on an image.
+
+            Parameters:
+            - image_path: The path to the image file.
+            - bbox_info: A dictionary containing the bounding box information (x, y, width, height, color).
+            """
+            # Extract bounding box information
+            x = box['x']
+            y = box['y']
+            width = box['width']
+            height = box['height']
+            color = box['color']
+            wiggle_room = 50
+
+            # Calculate the bottom right coordinate of the bounding box
+            top_right_x = x - width / 2 - 50
+            top_right_y = y - height / 2 - 50
+            bottom_right_x = x + width / 2 + 50
+            bottom_right_y = y + height / 2 + 50
+
+            # Create a drawing context
+            draw = ImageDraw.Draw(image)
+
+            # Draw the bounding box
+            draw.rectangle([(top_right_x, top_right_y), (bottom_right_x, bottom_right_y)], outline=color, width=15)
+
+            # Save or display the image
+            image.save('/Users/cyberpenguin/Downloads/output_image_with_bbox.jpg')  # Save the image with bounding box
+            # image.show()  # Or use this to display the image directly
+
         pass
 
 if __name__ == "__main__":
