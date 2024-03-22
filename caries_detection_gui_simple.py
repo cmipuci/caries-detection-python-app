@@ -8,6 +8,7 @@ from tkinter import filedialog
 from tkinter import ttk
 import webbrowser
 import json
+from roboflow import Roboflow
 
 
 class LabelInput(tk.Frame):
@@ -113,7 +114,7 @@ class PicUpload(ttk.LabelFrame):
     def browse_file(self):
        """Open file dialog to select an image, update entry and display image"""
        # use curren path in entry path as file dialog default if available
-       initial_dir = self.file_path_var.get() or '/'
+       initial_dir = self.file_path_var.get() or '/Kodak/DCIM/100NIKON'
        file_path = filedialog.askopenfilename(
           title="Select an image",
           initialdir=initial_dir,
@@ -413,7 +414,7 @@ class ImageOutput(ttk.LabelFrame):
     def display_image(self, path):
         """load and display the image in the label"""
         with Image.open(path) as img:
-            img.thumbnail ((300,300))
+            img.thumbnail ((500,500))
             photo = ImageTk.PhotoImage(img)
 
             self.image_label.config(image=photo)
@@ -536,7 +537,7 @@ class ResultsWindow(tk.Toplevel):
     def populate_results(self, data_dict):
         # Populate results using grid
         self.columnconfigure(0, weight=1)  # Make the column expandable
-        ImageOutput(self, data_dict['Image Path']).grid(row=0, column=0, sticky="ew", padx=10, pady=10)
+        ImageOutput(self, data_dict['Output Image Path']).grid(row=0, column=0, sticky="ew", padx=10, pady=10)
         
         ttk.Label(self, text=f"{data_dict['Number of Caries']} caries detected!").grid(row=1, column=0, sticky="ew", padx=10, pady=10)
 
@@ -643,19 +644,25 @@ class Application(tk.Tk):
 
         ResultsWindow(self, data)
 
+    def save_output_file(self, img_path):
+        path = Path(img_path)
+        output_filename = path.stem + "_output" + path.suffix
+        output_dir = Path("/Users/cyberpenguin/Downloads/Roboflow/")
+        output_path = output_dir / output_filename
+        return str(output_path)
 
     def dummy_ai(self, img_path):
-        from roboflow import Roboflow
+        output_path = self.save_output_file(img_path)
         rf = Roboflow(api_key="gW6C0GVmr7frqlRayVwV")
         project = rf.workspace().project("sidp")
         model = project.version(1).model
         # infer on a local image
         print(model.predict(img_path, confidence=40).json())
-        model.predict(img_path, confidence=40, labels=True).save("/Users/cyberpenguin/Downloads/output_img.jpg")
-
+        model.predict(img_path, confidence=40).save(output_path)
 
         num_caries = 3
-        return img_path, num_caries
+        return output_path, num_caries
+
 
 
 if __name__ == "__main__":
