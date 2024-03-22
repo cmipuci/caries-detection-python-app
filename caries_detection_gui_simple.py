@@ -2,11 +2,12 @@
 
 
 from pathlib import Path
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
 import webbrowser
+import json
 
 
 class LabelInput(tk.Frame):
@@ -650,6 +651,9 @@ class Application(tk.Tk):
         model = project.version(1).model
         # infer on a local image
         print(model.predict(img_path, confidence=40).json())
+        model.predict(img_path, confidence=40, labels=True).save("/Users/cyberpenguin/Downloads/output_img.jpg")
+
+
         num_caries = 3
         return img_path, num_caries
 
