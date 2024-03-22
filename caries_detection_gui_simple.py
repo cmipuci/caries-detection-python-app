@@ -657,13 +657,38 @@ class Application(tk.Tk):
         project = rf.workspace().project("sidp")
         model = project.version(1).model
         # infer on a local image
-        print(model.predict(img_path, confidence=40).json())
+        prediction_json = model.predict(img_path, confidence=40).json()
+        print(prediction_json)
         model.predict(img_path, confidence=40).save(output_path)
 
-        num_caries = 3
+        num_caries, num_amalgam, num_composite = self.image_predictions(prediction_json)
+        print(f"number of caries = {num_caries}")
+        print(f"number of amalgam = {num_amalgam}")
+        print(f"number of composite = {num_composite}")
         return output_path, num_caries
 
+    def image_predictions(self, prediction_json):
+        """Extract informations from json received from Roboflow"""
+        num_caries = 0
+        num_amalgam = 0
+        num_composite = 0
+        for predictions_dict in prediction_json['predictions']:
+            if isinstance(predictions_dict, dict):
+                if predictions_dict['class'] == 'Caries':
+                    num_caries += 1
+                elif predictions_dict['class'] == 'A-Filling':
+                    num_amalgam += 1
+                elif predictions_dict['class'] == 'C-Filling':
+                    num_composite += 1
 
+        # Determine number of caries
+        # Determine number of amalgam fillings
+        # Determine number of composite fillings
+        return num_caries, num_amalgam, num_composite
+
+    def draw_bounding_boxes(self, output_path, prediction_json):
+        """Using the output image and json from Roboflow, draw bounding boxes and labeled the """
+        pass
 
 if __name__ == "__main__":
     app = Application()
