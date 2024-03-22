@@ -2,7 +2,7 @@
 
 
 from pathlib import Path
-from PIL import Image, ImageTk, ImageDraw
+from PIL import Image, ImageTk, ImageDraw, ImageFont
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
@@ -699,7 +699,7 @@ class Application(tk.Tk):
                 box_parameter['width'] = predictions_dict['width']
                 box_parameter['height'] = predictions_dict['height']
                 box_parameter['class'] = predictions_dict['class']
-                box_parameter['confidence'] = round(predictions_dict['confidence'] * 100 , 2)
+                box_parameter['confidence'] = round(predictions_dict['confidence'] * 100)
                 if predictions_dict['class'] == 'Caries':
                     box_parameter['color'] = 'white'
                 elif predictions_dict['class'] == 'A-Filling':
@@ -726,13 +726,16 @@ class Application(tk.Tk):
             width = box['width']
             height = box['height']
             color = box['color']
+            class_label = box['class']
+            confidence = box['confidence']
+            label = class_label + ' ' + str(confidence) + '%'
             wiggle_room = 50
 
             # Calculate the bottom right coordinate of the bounding box
-            top_right_x = x - width / 2 - 50
-            top_right_y = y - height / 2 - 50
-            bottom_right_x = x + width / 2 + 50
-            bottom_right_y = y + height / 2 + 50
+            top_right_x = x - width / 2 - wiggle_room
+            top_right_y = y - height / 2 - wiggle_room
+            bottom_right_x = x + width / 2 + wiggle_room
+            bottom_right_y = y + height / 2 + wiggle_room
 
             # Create a drawing context
             draw = ImageDraw.Draw(image)
@@ -740,9 +743,20 @@ class Application(tk.Tk):
             # Draw the bounding box
             draw.rectangle([(top_right_x, top_right_y), (bottom_right_x, bottom_right_y)], outline=color, width=15)
 
-            # Save or display the image
-            image.save('/Users/cyberpenguin/Downloads/output_image_with_bbox.jpg')  # Save the image with bounding box
-            # image.show()  # Or use this to display the image directly
+            
+            font = ImageFont.load_default()
+            font_size = 100
+            font_name = 'Monaco'
+            font = ImageFont.truetype(font_name, font_size)
+
+            # Draw the class label above the bounding box
+            draw.text((top_right_x, top_right_y - 130), label, fill=color, font=font)
+            # draw.text((top_right_x, top_right_y - 230), str(confidence), fill=color, font=font)
+
+
+        # Save or display the image
+        image.save('/Users/cyberpenguin/Downloads/output_image_with_bbox.jpg')  # Save the image with bounding box
+        image.show()  # Or use this to display the image directly
 
         pass
 
