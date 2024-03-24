@@ -755,7 +755,7 @@ class Application(tk.Tk):
 
 
         # Save or display the image
-        image.save('/Users/cyberpenguin/Downloads/output_image_with_bbox.jpg')  # Save the image with bounding box
+        image.save(output_path)  # Save the image with bounding box
         image.show()  # Or use this to display the image directly
 
         pass
