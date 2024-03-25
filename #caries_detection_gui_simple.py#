@@ -1,5 +1,4 @@
 """This is a simple version of the app that is gui for the caries detection algorithm"""
-'''testing'''
 
 
 from pathlib import Path
@@ -33,7 +32,7 @@ class LabelInput(tk.Frame):
             self.label.grid(row=0, column=0, sticky=(tk.W + tk.E))
 
         # setup the variable
-        if input_class in (ttk.Checkbutton, ttk.Button, ttk.Radiobutton):
+       if input_class in (ttk.Checkbutton, ttk.Button, ttk.Radiobutton):
             input_args["variable"] = self.variable
         else:
             input_args["textvariable"] = self.variable
@@ -560,45 +559,35 @@ class ScrollResultsWindow(tk.Toplevel):
         self.title("Results")
         self.geometry("600x400")  # Set initial size of the window
 
-        # Canvas
-        self.canvas = tk.Canvas(self, scrollregion = (0, 0, 2000, 5000))
-        self.canvas.pack(fill="both", expand=True)
+        self.canvas = tk.Canvas(self)
+        self.scrollbar = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scroll_frame = tk.Frame(self.canvas)  # Frame that will contain widgets
 
-        # self.scroll_frame.bind(
-        #     "<Configure>",
-        #     lambda e: self.canvas.configure(
-        #         scrollregion=self.canvas.bbox("all")
-        #     )
-        # )
+        self.scroll_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            )
+        )
 
-        # self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
-
-        # Scrollbar 
-        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
-        self.scrollbar.place(relx=1, rely=0, relheight=1, ancho='ne')
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
 
         self.populate_results(data_dict)
 
-
     def populate_results(self, data_dict):
-        # Populate results using grid
-        self.columnconfigure(0, weight=1)  # Make the column expandable
-        ImageOutput(self.canvas, data_dict['Output Image Path']).grid(row=0, column=0, sticky="ew", padx=10, pady=10)
-        
-        ttk.Label(self.canvas, text=f"{data_dict['Number of Caries']} caries detected!").grid(row=1, column=0, sticky="ew", padx=10, pady=10)
+        # Add your content to self.scroll_frame instead of self
+        ImageOutput(self.scroll_frame, data_dict['Image Path']).pack(padx=10, pady=10, fill=tk.X)
+        ttk.Label(self.scroll_frame, text=f"{data_dict['Number of Caries']} caries detected!").pack(padx=10, pady=10, fill=tk.X)
+        for key, value in data_dict.items():
+            if isinstance(value, dict):
+                ttk.Label(self.scroll_frame, text=f"{key} risk is {value['risk'] or 'unanswered'}").pack(fill=tk.X)
+            else:
+                ttk.Label(self.scroll_frame, text=f"{key} is {value or 'unanswered'}").pack(fill=tk.X)
 
-        zocdoc(self.canvas, data_dict).grid(row=2, column=0, sticky="ew", padx=10, pady=10)
-        CRAresults(self.canvas, data_dict).grid(row=3, column=0, sticky="ew", padx=10, pady=10)
-
-        row = 3  # Starting row for the dynamic content
-
-        # for key, value in data_dict.items():
-        #     if isinstance(value, dict):
-        #         ttk.Label(self, text=f"{key} risk is {value['risk'] or 'unanswered'}").grid(row=row, column=0, sticky="ew", padx=10, pady=2)
-        #     else:
-        #         ttk.Label(self, text=f"{key} is {value or 'unanswered'}").grid(row=row, column=0, sticky="ew", padx=10, pady=2)
-        #     row += 1
 class Application(tk.Tk):
 
     def __init__(self, *args, **kwargs):
@@ -767,7 +756,7 @@ class Application(tk.Tk):
 
         # Save or display the image
         image.save(output_path)  # Save the image with bounding box
-        # image.show()  # Or use this to display the image directly
+        image.show()  # Or use this to display the image directly
 
         pass
 
