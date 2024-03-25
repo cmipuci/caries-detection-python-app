@@ -1,9 +1,0 @@
-(undo-tree-save-format-version . 1)
-"dc2a7e55be799f8c88764b4142b2126d775b3259"
-[nil nil nil nil (26113 6271 78454 0) 0 nil]
-([nil nil ((405 . 411) (400 . 405) (t 26112 44774 192353 868000) 342) nil (26113 6271 78453 0) 0 nil])
-([nil nil ((#("    def __
-" 0 4 (fontified t) 4 7 (face font-lock-keyword-face fontified t) 7 8 (fontified t) 8 10 (face font-lock-function-name-face fontified t) 10 11 (fontified t)) . 401) (undo-tree-id18 . 1) (undo-tree-id19 . -9) (undo-tree-id20 . -10) 410) nil (26113 6271 78450 0) 0 nil])
-([nil nil ((#("u" 0 1 (face font-lock-doc-face fontified t)) . 85) (undo-tree-id0 . -1) (undo-tree-id1 . -1) (undo-tree-id2 . -1) (undo-tree-id3 . -1) (undo-tree-id4 . -1) (undo-tree-id5 . -1) (undo-tree-id6 . -1) (undo-tree-id7 . -1) (undo-tree-id8 . -1) (undo-tree-id9 . -1) (undo-tree-id10 . -1) (undo-tree-id11 . -1) (undo-tree-id12 . -1) (undo-tree-id13 . -1) (undo-tree-id14 . -1) (undo-tree-id15 . -1) (undo-tree-id16 . -1) (undo-tree-id17 . -1)) nil (26113 6271 78442 0) 0 nil])
-([nil current ((37370 . 37371)) nil (26113 6271 78390 0) 0 nil])
-nil
