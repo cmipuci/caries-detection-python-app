@@ -675,7 +675,6 @@ class ScrollResultsWindowtest(tk.Toplevel):
         self.canvas.config(scrollregion=self.canvas.bbox("all"))  # Adjust scrollregion based on frame's bbox
 
         self.frame.bind('<Configure>', lambda e: self.canvas.config(scrollregion=self.canvas.bbox("all")))
-
         # Bind the mouse wheel event to the canvas, with cross-platform support
         self.add_mousewheel_scrolling(self.canvas)
 
