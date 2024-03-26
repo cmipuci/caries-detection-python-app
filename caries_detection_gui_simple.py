@@ -554,44 +554,75 @@ class ResultsWindow(tk.Toplevel):
         #         ttk.Label(self, text=f"{key} is {value or 'unanswered'}").grid(row=row, column=0, sticky="ew", padx=10, pady=2)
         #     row += 1
 
+class ScrollFrame(ttk.Frame):
+    def __init__(self, parent, widget_list):
+        super().__init__(master=parent)
+
+        self.widget_list = widget_list
+
+        self.pack(expand=True, fill='both')
+
+        # canvas
+        self.canvas = tk.Canvas(self, background='red', scrollregion=(0, 0, 500, 4000))
+        self.canvas.pack(expand=True, fill='both')
+
+        # display frame
+        self.frame = ttk.Frame(self)
+        ttk.Label(self.frame, text='A label').pack()
+        self.canvas.create_window(
+            (0,0),
+            window=self.frame,
+            anchor = 'nw',
+            width = 500,
+            height = 4000)
+
+        for widget in self.widget_list:
+            widget.pack(expand=True, fill='both', pady = 4, padx = 10)
+
 class ScrollResultsWindow(tk.Toplevel):
     def __init__(self, parent, data_dict, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.title("Results")
         self.geometry("600x400")  # Set initial size of the window
 
-        # Canvas
-        self.canvas = tk.Canvas(self, scrollregion = (0, 0, 2000, 5000))
-        self.canvas.pack(fill="both", expand=True)
+        scroll_frame = ttk.Frame(self)
+        scroll_frame.pack(expand=True, fill='both')
 
-        # self.scroll_frame.bind(
-        #     "<Configure>",
-        #     lambda e: self.canvas.configure(
-        #         scrollregion=self.canvas.bbox("all")
-        #     )
-        # )
+        #canvas
+        self.canvas = tk.Canvas(scroll_frame, background='red', scrollregion=(0, 0, 500, 1000))
+        self.canvas.pack(expand=True, fill='both')
 
-        # self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
+        # display frame
+        self.frame = ttk.Frame(scroll_frame)
 
-        # Scrollbar 
-        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
-        self.scrollbar.place(relx=1, rely=0, relheight=1, ancho='ne')
+        ImageOutput(self.frame, data_dict['Output Image Path']).pack(expand=True, fill='both', pady=4, padx=10)
+        ttk.Label(self.frame, text=f"{data_dict['Number of Caries']} caries detected!").pack(expand=True, fill='both', pady=4, padx=10)
+        zocdoc(self.frame, data_dict).pack(expand=True, fill='both', pady=4, padx=10)
+        CRAresults(self.frame, data_dict).pack(expand=True, fill='both', pady=4, padx=10)
 
-        self.populate_results(data_dict)
+        self.canvas.create_window(
+            (0,0),
+            window = self.frame,
+            anchor = 'nw',
+            width = 500,
+            height = 1000
+        )
+
+        # events
+        self.canvas.bind_all('<MouseWheel>', lambda event: print(event))
+        self.canvas.bind_all('<MouseWheel>', lambda event: self.canvas.yview_scroll(-event.delta, "units"))
 
 
-    def populate_results(self, data_dict):
         # Populate results using grid
-        self.columnconfigure(0, weight=1)  # Make the column expandable
-        ImageOutput(self.canvas, data_dict['Output Image Path']).grid(row=0, column=0, sticky="ew", padx=10, pady=10)
-        
-        ttk.Label(self.canvas, text=f"{data_dict['Number of Caries']} caries detected!").grid(row=1, column=0, sticky="ew", padx=10, pady=10)
+        # ImageOutput(self.results_container, data_dict['Output Image Path']).grid(row=0, column=0, sticky="ew", padx=10, pady=10)
+        # ttk.Label(self.results_container, text=f"{data_dict['Number of Caries']} caries detected!").grid(row=1, column=0, sticky="ew", padx=10, pady=10)
+        # zocdoc(self.results_container, data_dict).grid(row=2, column=0, sticky="ew", padx=10, pady=10)
+        # CRAresults(self.results_container, data_dict).grid(row=3, column=0, sticky="ew", padx=10, pady=10)
 
-        zocdoc(self.canvas, data_dict).grid(row=2, column=0, sticky="ew", padx=10, pady=10)
-        CRAresults(self.canvas, data_dict).grid(row=3, column=0, sticky="ew", padx=10, pady=10)
-
-        row = 3  # Starting row for the dynamic content
+        # ImageOutput(self.results_container, data_dict['Output Image Path']).pack(fill='both', expand=True)
+        # ttk.Label(self.results_container, text=f"{data_dict['Number of Caries']} caries detected!").pack(fill='both', expand=True)
+        # zocdoc(self.results_container, data_dict).pack(fill='both', expand=True)
+        # CRAresults(self.results_container, data_dict).pack(fill='both', expand=True)
 
         # for key, value in data_dict.items():
         #     if isinstance(value, dict):
@@ -653,7 +684,7 @@ class Application(tk.Tk):
             'Number of Caries': caries_count
         })
 
-        ResultsWindow(self, data)
+        ScrollResultsWindow(self, data)
 
     def save_output_file(self, img_path):
         path = Path(img_path)
