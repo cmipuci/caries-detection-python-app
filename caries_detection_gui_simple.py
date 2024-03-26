@@ -756,7 +756,7 @@ class Application(tk.Tk):
 
         # Save or display the image
         image.save(output_path)  # Save the image with bounding box
-        image.show()  # Or use this to display the image directly
+        # image.show()  # Or use this to display the image directly
 
         pass
 
