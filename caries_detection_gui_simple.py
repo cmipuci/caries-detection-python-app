@@ -9,6 +9,7 @@ from tkinter import ttk
 import webbrowser
 import json
 from roboflow import Roboflow
+import tempfile
 
 
 class LabelInput(tk.Frame):
@@ -592,6 +593,9 @@ class Application(tk.Tk):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # create temporary directory for application's session
+        self.temp_dir = tempfile.TemporaryDirectory()
+        print(f"Temporary directory created at {self.temp_dir.name}")
     
         # creat dictionary to keep track of all inputs
         self._vars = {
@@ -647,8 +651,9 @@ class Application(tk.Tk):
     def save_output_file(self, img_path):
         path = Path(img_path)
         output_filename = path.stem + "_output" + path.suffix
-        output_dir = Path("/Users/cyberpenguin/Downloads/Roboflow/")
-        output_path = output_dir / output_filename
+        # output_dir = Path("/Users/cyberpenguin/Downloads/Roboflow/")
+        # Use the temporary directory for output
+        output_path = Path(self.temp_dir.name) / output_filename
         return str(output_path)
 
     def dummy_ai(self, img_path):
