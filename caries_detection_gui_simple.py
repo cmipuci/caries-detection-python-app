@@ -10,6 +10,7 @@ from tkinter import ttk
 import webbrowser
 import json
 from roboflow import Roboflow
+import time
 
 
 class LabelInput(tk.Frame):
@@ -585,33 +586,49 @@ class ScrollResultsWindow(tk.Toplevel):
         self.title("Results")
         self.geometry("600x400")  # Set initial size of the window
 
-        scroll_frame = ttk.Frame(self)
-        scroll_frame.pack(expand=True, fill='both')
+        self.scroll_frame = ttk.Frame(self)
+        self.scroll_frame.pack(expand=True, fill='both')
 
         #canvas
-        self.canvas = tk.Canvas(scroll_frame, background='red', scrollregion=(0, 0, 500, 1000))
+        self.canvas = tk.Canvas(self.scroll_frame, background='red', scrollregion=(0, 0, self.scroll_frame.winfo_width(), self.widget_height))
         self.canvas.pack(expand=True, fill='both')
 
         # display frame
-        self.frame = ttk.Frame(scroll_frame)
+        self.frame = ttk.Frame(self.scroll_frame)
 
-        ImageOutput(self.frame, data_dict['Output Image Path']).pack(expand=True, fill='both', pady=4, padx=10)
-        ttk.Label(self.frame, text=f"{data_dict['Number of Caries']} caries detected!").pack(expand=True, fill='both', pady=4, padx=10)
-        zocdoc(self.frame, data_dict).pack(expand=True, fill='both', pady=4, padx=10)
-        CRAresults(self.frame, data_dict).pack(expand=True, fill='both', pady=4, padx=10)
+        # Create the widget again, but this time put them in the actual scroll frame to be displayed
+        self.image_widget = ImageOutput(self.frame, data_dict['Output Image Path'])
+        self.label = ttk.Label(self.frame, text=f"{data_dict['Number of Caries']} caries detected!")
+        self.zocdoc = zocdoc(self.frame, data_dict)
+        self.CRAresults = CRAresults(self.frame, data_dict)
+
+        # placing the widget in place
+        self.image_widget.pack(expand=True, fill='both', pady=4, padx=10)
+        self.label.pack(expand=True, fill='both', pady=4, padx=10)
+        self.zocdoc.pack(expand=True, fill='both', pady=4, padx=10)
+        self.CRAresults.pack(expand=True, fill='both', pady=4, padx=10)
 
         self.canvas.create_window(
             (0,0),
             window = self.frame,
             anchor = 'nw',
-            width = 500,
-            height = 1000
+            width = self.scroll_frame.winfo_width(),
+            height = self.widget_height
         )
 
         # events
         self.canvas.bind_all('<MouseWheel>', lambda event: print(event))
         self.canvas.bind_all('<MouseWheel>', lambda event: self.canvas.yview_scroll(-event.delta, "units"))
+        self.scroll_frame.bind('<Configure>', self.update_size)
 
+    def update_size(self, event):
+        self.canvas.create_window(
+            (0,0),
+            window = self.frame,
+            anchor = 'nw',
+            width = self.scroll_frame.winfo_width(),
+            height = self.widget_height
+        )
 
         # Populate results using grid
         # ImageOutput(self.results_container, data_dict['Output Image Path']).grid(row=0, column=0, sticky="ew", padx=10, pady=10)
@@ -630,6 +647,55 @@ class ScrollResultsWindow(tk.Toplevel):
         #     else:
         #         ttk.Label(self, text=f"{key} is {value or 'unanswered'}").grid(row=row, column=0, sticky="ew", padx=10, pady=2)
         #     row += 1
+class ScrollResultsWindowtest(tk.Toplevel):
+    def __init__(self, parent, data_dict, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.title("Results")
+        self.geometry("600x400")
+
+        # Create a canvas and a scrollbar
+        self.canvas = tk.Canvas(self)
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.scrollbar.pack(side=tk.RIGHT, fill="y")
+        self.canvas.pack(side=tk.LEFT, fill="both", expand=True)
+
+        # Create a frame inside the canvas
+        self.frame = ttk.Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.frame, anchor='nw')
+
+        # Add your widgets here
+        ImageOutput(self.frame, data_dict['Output Image Path']).pack(fill='x')
+        ttk.Label(self.frame, text=f"{data_dict['Number of Caries']} caries detected!").pack(fill='x')
+        zocdoc(self.frame, data_dict).pack(fill='x')
+        CRAresults(self.frame, data_dict).pack(fill='x')
+
+        self.frame.update_idletasks()  # Force update geometry
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))  # Adjust scrollregion based on frame's bbox
+
+        self.frame.bind('<Configure>', lambda e: self.canvas.config(scrollregion=self.canvas.bbox("all")))
+
+        # Bind the mouse wheel event to the canvas, with cross-platform support
+        self.add_mousewheel_scrolling(self.canvas)
+
+    def add_mousewheel_scrolling(self, widget):
+        def on_mousewheel(event):
+            widget.yview_scroll(-event.delta, "units")
+
+        def on_mousewheel_linux(event):
+            widget.yview_scroll(int(-1*event.num), "units")
+
+        # Bind mousewheel event based on the platform
+        if self.tk.call('tk', 'windowingsystem') == 'win32':
+            widget.bind_all("<MouseWheel>", on_mousewheel)
+        elif self.tk.call('tk', 'windowingsystem') == 'x11':
+            widget.bind_all("<Button-4>", on_mousewheel_linux)
+            widget.bind_all("<Button-5>", on_mousewheel_linux)
+        else:
+            # For MacOS
+            widget.bind_all("<MouseWheel>", on_mousewheel)
+
 class Application(tk.Tk):
 
     def __init__(self, *args, **kwargs):
@@ -684,7 +750,7 @@ class Application(tk.Tk):
             'Number of Caries': caries_count
         })
 
-        ScrollResultsWindow(self, data)
+        ScrollResultsWindowtest(self, data)
 
     def save_output_file(self, img_path):
         path = Path(img_path)
