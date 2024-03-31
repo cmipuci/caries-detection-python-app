@@ -701,6 +701,9 @@ class Application(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
+        # create temporary directory for application's session
+        self.temp_dir = tempfile.TemporaryDirectory()
+        print(f"Temporary directory created at {self.temp_dir.name}")
 
         self.title("Caries Detection Application")
 
