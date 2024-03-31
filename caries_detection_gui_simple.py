@@ -120,8 +120,8 @@ class PicUpload(ttk.LabelFrame):
        file_path = filedialog.askopenfilename(
           title="Select an image",
           initialdir=initial_dir,
-          filetypes=[('JPEG files', '*.jpeg')]
        )
+          # filetypes=[('JPEG files', '*.jpeg')]
        if file_path:
           self.file_path_var.set(file_path)
           self.display_image(file_path)
@@ -700,7 +700,55 @@ class Application(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
-        # creat dictionary to keep track of all inputs
+
+        self.title("Caries Detection Application")
+
+        # Set up the main layout with a Canvas for scrolling
+        self.canvas = tk.Canvas(self)
+        self.scrollbar = ttk.Scrollbar(self, command=self.canvas.yview, orient="vertical")
+        self.scrollable_frame = ttk.Frame(self.canvas)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            )
+        )
+
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        # Initialize your form within the scrollable frame
+        self.initialize_form()
+
+                # Bind the mouse wheel event for scrolling
+        self.bind_mouse_wheel()
+
+    
+    def bind_mouse_wheel(self):
+        """Bind mouse wheel event for scrolling."""
+        self.canvas.bind_all("<MouseWheel>", self.on_mouse_wheel)  # For Windows and MacOS
+        self.canvas.bind_all("<Button-4>", self.on_mouse_wheel)  # For Linux, scrolling up
+        self.canvas.bind_all("<Button-5>", self.on_mouse_wheel)  # For Linux, scrolling down
+    
+    def on_mouse_wheel(self, event):
+        """Handle mouse wheel scroll."""
+        if self.tk.call('tk', 'windowingsystem') == 'win32':
+            self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        elif self.tk.call('tk', 'windowingsystem') == 'x11':
+            if event.num == 4:
+                self.canvas.yview_scroll(-1, "units")
+            elif event.num == 5:
+                self.canvas.yview_scroll(1, "units")
+        else:
+            # For MacOS
+            self.canvas.yview_scroll(int(-1 * (event.delta)), "units")
+
+    def initialize_form(self):
+        # Variables and form setup
         self._vars = {
             'Name': tk.StringVar(),
             'Age': tk.IntVar(),
@@ -721,19 +769,9 @@ class Application(tk.Tk):
             'Number of Caries': '',
         }
 
-        #title shown on window
-        self.title("Caries Detection Application")
-        self.columnconfigure(0, weight=1)
-
-        # Label for the application
-        ttk.Label(
-           self, text="AI Caries Detection",
-           font=("TKDefaultFont", 25)   
-        ).grid(row=0)
-
-        # input form
-        self.inputform = InputForm(self, var_dict=self._vars, submit_callback=self.open_results_window)
-        self.inputform.grid(row=1, padx=10, sticky=(tk.W + tk.E))
+        # Here InputForm is your form class which should be defined elsewhere
+        self.inputform = InputForm(self.scrollable_frame, var_dict=self._vars, submit_callback=self.open_results_window)
+        self.inputform.pack(fill='both', expand=True)
 
     def open_results_window(self, data):
 
